@@ -1,0 +1,11 @@
+# MessengerTest
+Messenger使用步骤
+以下是如何使用Messenger的步骤: 
+1. Service需要实现一个Hanlder，用以处理从客户端收到的消息 
+2. 用该Handler创建一个Messenger对象，Messenger对象内部会引用该Handler对象 
+3. 用创建好的Messenger对象获得一个IBinder实例，并且将该IBinder通过Service的onBind方法返回给各个客户端 
+4. 客户端通过收到的IBinder对象实例化一个Messenger对象，该Messenger内部指向指向Service中的Handler。客户端通过该Messenger对象就可以向Service中的Hanlder发送消息。 
+5. Service中的Hanlder收到消息后，在Handler中的handleMessage方法中处理消息。 
+6. 通过上面的第4步与第5步，就完成了客户端向Service发送消息并且Service接收到消息的单向通信过程，即客户端 -> Service。如果要实现Service向客户端回消息的通信过程，即Service -> 客户端，那么前提是在客户端中也需要像Service一样内部维护有一个指向Handler的Messenger。当在第四步中客户端向Service发送信息时，将Message的replyTo属性设置为客户端自己的Messenger。这样在第5步Service在Handler的handleMessage中处理收到的消息时，可以通过Message的Messenger再向客户端发送Message，这样客户端内维护的Handler对象就会收到来自于Service的Message，从而完成Service向客户端发送消息且客户端接收到消息的通信过程。
+综上六步就能完成客户端与Service的跨进程双向通信过程: 
+客户端 -> Service -> 客户端
